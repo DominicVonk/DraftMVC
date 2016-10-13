@@ -1,0 +1,13 @@
+{
+    "name": "dominicvonk/draftmvc",
+    "description": "Draft MVC",
+    "type": "MVC",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Dominic Vonk",
+            "email": "dominic@dominicvonk.com"
+        }
+    ],
+    "require": {}
+}

@@ -1,5 +1,8 @@
 <?php
 namespace DraftMVC;
+if (!defined('DRAFT_CONFIGS')) {
+    define('DRAFT_CONFIGS', __DIR__ . '/config');
+}
 class DraftConfig {
     private static $config;
     public static function get($path) {

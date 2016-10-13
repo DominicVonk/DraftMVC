@@ -1,5 +1,8 @@
 <?php
 namespace DraftMVC;
+if (!defined('DRAFT_VIEWS')) {
+    define('DRAFT_VIEWS', __DIR__ . '/views');
+}
 class DraftView {
     private $file;
     private $html;

@@ -1,5 +1,8 @@
 <?php
 namespace DraftMVC;
+if (!defined('DRAFT_CONTROLLERS')) {
+    define('DRAFT_CONTROLLERS', __DIR__ . '/controllers');
+}
 class DraftRouter {
     public static function route($routes) {
         $done = false;
