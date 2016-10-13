@@ -9,5 +9,10 @@
             "email": "dominic@dominicvonk.com"
         }
     ],
-    "require": {}
+    "require": {},
+    "autoload": {
+        "psr-0": {
+            "DraftMVC": "src/"
+        }
+    }
 }
