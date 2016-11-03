@@ -3,7 +3,7 @@
   "description": "Draft MVC",
   "type": "MVC",
   "license": "MIT",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "authors": [{
     "name": "Dominic Vonk",
     "email": "dominic@dominicvonk.com"

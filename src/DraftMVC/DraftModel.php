@@ -130,7 +130,7 @@ class DraftModel
         $dbname = self::getDBName(get_called_class());
         $_query = 'SELECT * FROM `' . $dbname . '` WHERE ' . $query . 'LIMIT 1';
         $statement = self::$db->prepare($_query);
-        $statement->execute($query);
+        $statement->execute($data);
         
         $fetched = $statement->fetch(\PDO::FETCH_ASSOC);
 
