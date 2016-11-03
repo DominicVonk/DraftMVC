@@ -1,19 +1,17 @@
 {
-    "name": "dominicvonk/draftmvc",
-    "description": "Draft MVC",
-    "type": "MVC",
-    "license": "MIT",
-    "version": "0.0.2",
-    "authors": [
-        {
-            "name": "Dominic Vonk",
-            "email": "dominic@dominicvonk.com"
-        }
-    ],
-    "require": {},
-    "autoload": {
-        "psr-0": {
-            "DraftMVC": "src/"
-        }
+  "name": "dominicvonk/draftmvc",
+  "description": "Draft MVC",
+  "type": "MVC",
+  "license": "MIT",
+  "version": "0.1.1",
+  "authors": [{
+    "name": "Dominic Vonk",
+    "email": "dominic@dominicvonk.com"
+  }],
+  "require": {},
+  "autoload": {
+    "psr-0": {
+      "DraftMVC": "src/"
     }
+  }
 }
