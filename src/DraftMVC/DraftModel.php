@@ -3,7 +3,7 @@ namespace DraftMVC;
 class DraftModel
 {
     private $data;
-    private static $db;
+    protected static $db;
     private $dbname;
     private $class;
     public static function useDB ($db) 
