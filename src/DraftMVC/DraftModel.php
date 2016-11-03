@@ -2,10 +2,10 @@
 namespace DraftMVC;
 class DraftModel
 {
-    private $data;
+    protected $data;
     protected static $db;
-    private $dbname;
-    private $class;
+    protected $dbname;
+    protected $class;
     public static function useDB ($db) 
     {
         self::$db = $db;
