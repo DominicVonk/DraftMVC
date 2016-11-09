@@ -53,18 +53,17 @@ class DraftModel
                 $_data[':' . $field] = $value;
             }
         }
-        if ($this->data['id'] !== null) {
-            $query .= ' WHERE `id` = :' . $id; 
-            $_data[':id'] = $value;
-        }
         $query = substr($query, 0, -2);
+        if ($this->data['id'] !== null) {
+            $query .= ' WHERE `id` = :id'; 
+            $_data[':id'] = $this->data['id'];
+        }
         
         if ($this->data['id'] === null) {
             $query = 'INSERT INTO `' . $this->dbname . '` ' . $query;
         } else {
             $query = 'UPDATE `' . $this->dbname . '` ' . $query;
         }
-
         $statement = self::$db->prepare($query);
         $statement->execute($_data);
 
@@ -94,7 +93,7 @@ class DraftModel
         $_query = 'SELECT * FROM `' . $dbname . '`';
        
         $statement = self::$db->prepare($_query);
-        $statement->execute($query);
+        $statement->execute();
         $fetched = $statement->fetchAll(\PDO::FETCH_ASSOC);
         if ($fetched) {
             $list = array();

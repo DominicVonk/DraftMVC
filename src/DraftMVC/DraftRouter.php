@@ -65,6 +65,9 @@ class DraftRouter {
                 $layout = new \DraftMVC\DraftView('layouts/' .$path);
                 call_user_func_array(array($class, 'setLayout'), array($layout));
             }
+            if (method_exists($class, 'init')) {
+                call_user_func_array(array($class, 'init'), $matches);
+            }
             $return = null;
             $funcMain = '_';
             $pseudo = explode('/', $funcPath);
