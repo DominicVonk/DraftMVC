@@ -4,7 +4,7 @@ if (!defined('DRAFT_CONTROLLERS')) {
     define('DRAFT_CONTROLLERS', __DIR__ . '/controllers');
 }
 class DraftRouter {
-    private static $viewClass = \DraftMVC\DraftView;
+    private static $viewClass = '\DraftMVC\DraftView';
     private static $viewExt = 'php';
     private static $layout = true;
     public static function setViewClass($class) {
