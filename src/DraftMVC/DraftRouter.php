@@ -4,6 +4,18 @@ if (!defined('DRAFT_CONTROLLERS')) {
     define('DRAFT_CONTROLLERS', __DIR__ . '/controllers');
 }
 class DraftRouter {
+    private static $viewClass = \DraftMVC\DraftView;
+    private static $viewExt = 'php';
+    private static $layout = true;
+    public static function setViewClass($class) {
+        self::$viewClass = $class;
+    }
+    public static function setViewExtension($ext) {
+        self::$viewExt = $ext;
+    }
+    public static function disableLayoutSearch() {
+        self::$layout = false;
+    }
     public static function route($routes) {
         $done = false;
         foreach($routes as $domain => $route) {
@@ -57,12 +69,12 @@ class DraftRouter {
             $funcPath = $function;
             $funcPath = preg_replace('/([a-z])([A-Z])/', '$1/$2', $funcPath);
             $funcPath = strtolower($funcPath);
-            if (file_exists(DRAFT_VIEWS . '/' . $path . '/' . $funcPath . '.php' )) {
-                $view = new \DraftMVC\DraftView($path . '/' .$funcPath);
+            if (file_exists(DRAFT_VIEWS . '/' . $path . '/' . $funcPath . '.' . self::$viewExt)) {
+                $view = new self::$viewClass($path . '/' .$funcPath);
                 call_user_func_array(array($class, 'setView'), array($view));
             }
-            if (file_exists(DRAFT_VIEWS . '/layouts/' . $path . '.php' )) {
-                $layout = new \DraftMVC\DraftView('layouts/' .$path);
+            if (self::$layout && file_exists(DRAFT_VIEWS . '/layouts/' . $path . '.' . self::$viewExt)) {
+                $layout = new self::$viewClass('layouts/' .$path);
                 call_user_func_array(array($class, 'setLayout'), array($layout));
             }
             if (method_exists($class, 'init')) {
