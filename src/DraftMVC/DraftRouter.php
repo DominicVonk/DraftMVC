@@ -59,13 +59,14 @@ class DraftRouter {
             if (substr($filename, 0, 1) == '/') {
                 $filename = substr($filename, 1);
             }
-            
-            require(DRAFT_CONTROLLERS.'/'.$filename.'.php');
+            /* If file doesn't exists depend on autoloading */
+            if (file_exists(DRAFT_CONTROLLERS.'/'.$filename.'.php')) {
+                require(DRAFT_CONTROLLERS.'/'.$filename.'.php');
+            }
             $class = new $className();
             $matches = array_merge($matches, array_slice($matches2, 1));
-            $path = substr($className, strrpos('/' . $className, '/'));
+            $path = substr($filename, strrpos('/' . $filename, '/'));
             $path = strtolower(substr($path, 0, -10));
-            
             $funcPath = $function;
             $funcPath = preg_replace('/([a-z])([A-Z])/', '$1/$2', $funcPath);
             $funcPath = strtolower($funcPath);
