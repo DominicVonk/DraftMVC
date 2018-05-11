@@ -10,7 +10,9 @@ class DraftModel
     {
         self::$db = $db;
     }
-
+    public function dump () {
+        return $this->data;
+    }
     public function __construct($data = null)
     {
         $this->dbname = self::getDBName(get_called_class());
@@ -83,6 +85,8 @@ class DraftModel
 
     public static function getDBName($className)
     {
+        $className = explode('\\', $className);
+        $className = end($className);
         return strtolower(preg_replace('/([a-z])([A-Z])/' , '\1_\2', $className));
     }
 
