@@ -9,6 +9,9 @@ class DraftView {
     public function __construct($file) {
         $this->file = $file;
     }
+    public function setViewFile($file) {
+        $this->file = $file;
+    }
     public function escape($string) {
         return htmlentities($string);
     }
