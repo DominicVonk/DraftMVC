@@ -5,11 +5,15 @@ if (!defined('DRAFT_CONFIGS')) {
 }
 class DraftConfig {
     private static $config;
-    public static function get($path) {
+    public static function get($path, $default = null) {
         $path = explode('.', $path);
         $config = self::$config;
         foreach($path as $name) {
-            $config = $config[$name];
+            if (array_key_exists($name, $config)) {
+                $config = $config[$name];
+            } else {
+                return $default;
+            }
         }
         return $config;
     }
