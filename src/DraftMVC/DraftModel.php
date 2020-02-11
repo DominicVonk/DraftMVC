@@ -1,26 +1,42 @@
 <?php
+
 namespace DraftMVC;
+
 class DraftModel
 {
     protected $data;
     protected static $db;
     protected $dbname;
     protected $class;
-    public static function useDB ($db) 
+    public static function useDB($db)
     {
-        self::$db = $db;
+        static::$db = $db;
     }
-    public function dump () {
+    public static function getTableName()
+    {
+        if (isset(static::$table)) {
+            return static::$table;
+        } else {
+            return static::getDBName(get_called_class());
+        }
+    }
+    public function dump()
+    {
+        return $this->toArray();
+    }
+    public function toArray()
+    {
         return $this->data;
     }
     public function __construct($data = null)
     {
-        $this->dbname = self::getDBName(get_called_class());
+        $this->dbname = static::getTableName();
         $this->class = get_called_class();
-        $statement = self::$db->prepare('DESCRIBE `' . $this->dbname . '`');
+        $statement = static::$db->prepare('DESCRIBE `' . $this->dbname . '`');
         $statement->execute();
         $rows = $statement->fetchAll();
-        foreach($rows as $row) {
+        $this->data = [];
+        foreach ($rows as $row) {
             $this->data[$row['Field']] = null;
         }
 
@@ -34,9 +50,9 @@ class DraftModel
         return $this->data[$variable];
     }
 
-    public function __set($variable, $value) 
+    public function __set($variable, $value)
     {
-        if ($variable !== 'createdate' && $variable !== 'changedate' && $variable !== 'id') {
+        if ($variable !== 'createdate' && $variable !== 'deletedate' && $variable !== 'changedate' && $variable !== 'id') {
             $this->data[$variable] = $value;
         }
     }
@@ -49,7 +65,7 @@ class DraftModel
         }
         $this->data['changedate'] = date('Y-m-d H:i:s');
         $query = 'SET ';
-        foreach($this->data as $field => $value){
+        foreach ($this->data as $field => $value) {
             if ($field !== 'id') {
                 $query .= '`' . $field . '` = :' . $field . ', ';
                 $_data[':' . $field] = $value;
@@ -57,96 +73,121 @@ class DraftModel
         }
         $query = substr($query, 0, -2);
         if ($this->data['id'] !== null) {
-            $query .= ' WHERE `id` = :id'; 
+            $query .= ' WHERE `id` = :id';
             $_data[':id'] = $this->data['id'];
         }
-        
+
         if ($this->data['id'] === null) {
             $query = 'INSERT INTO `' . $this->dbname . '` ' . $query;
         } else {
             $query = 'UPDATE `' . $this->dbname . '` ' . $query;
         }
-        $statement = self::$db->prepare($query);
+        $statement = static::$db->prepare($query);
         $statement->execute($_data);
 
         if ($this->data['id'] === null) {
-            $this->data['id'] = self::$db->lastInsertId();
-        }
-    }
-    
-    public function delete()
-    {
-        if ($this->data['id'] !== null) {
-            $statement = self::$db->prepare('DELETE FROM `' . $this->dbname . '`' . ' WHERE `id` = :id');
-            $statement->execute(array(':id' => $this->data['id']));
-            $this->data['id'] = null;
+            $this->data['id'] = static::$db->lastInsertId();
         }
     }
 
+    public function delete($force = false)
+    {
+        if ($this->data['id'] !== null) {
+            if (isset($this->data['deletedate']) && !$force) {
+                $this->data['deletedate'] = date('Y-m-d H:i:s');
+                $statement = static::$db->prepare('UPDATE `' . $this->dbname . '` SET `deletedate` = :deletedate WHERE `id` = :id');
+                $statement->execute(array(':id' => $this->data['id'], ':deletedate' => $this->data['deletedate']));
+            } else {
+                $statement = static::$db->prepare('DELETE FROM `' . $this->dbname . '`' . ' WHERE `id` = :id');
+                $statement->execute(array(':id' => $this->data['id']));
+                $this->data['id'] = null;
+            }
+        }
+    }
+    public function undelete()
+    {
+        if (isset($this->data['deletedate']) && $this->data['id'] !== null) {
+            $statement = static::$db->prepare('UPDATE `' . $this->dbname . '` SET `deletedate` = NULL WHERE `id` = :id');
+            $statement->execute(array(':id' => $this->data['id']));
+            $this->data['deletedate'] = null;
+        }
+    }
     public static function getDBName($className)
     {
         $className = explode('\\', $className);
         $className = end($className);
-        return strtolower(preg_replace('/([a-z])([A-Z])/' , '\1_\2', $className));
+        return strtolower(preg_replace('/([a-z])([A-Z])/', '\1_\2', $className));
     }
 
-    public static function findAll()
+    public static function findAll($withTrashed = false)
     {
         $class = get_called_class();
-        $dbname = self::getDBName(get_called_class());
+        $dbname = static::getTableName();
         $_query = 'SELECT * FROM `' . $dbname . '`';
-       
-        $statement = self::$db->prepare($_query);
+
+        $statement = static::$db->prepare($_query);
         $statement->execute();
         $fetched = $statement->fetchAll(\PDO::FETCH_ASSOC);
         if ($fetched) {
             $list = array();
-            foreach($fetched as $data) {
-                array_push($list, new $class($data));
+            foreach ($fetched as $data) {
+                if (!isset($data['deletedate']) || empty($data['deletedate']) || $withTrashed) {
+                    array_push($list, new $class($data));
+                }
             }
-            return $list;
+            return new DraftCollection($list);
         }
         return false;
     }
 
-    public static function find($query, $data = null)
+    public static function find($query, $data = null, $withTrashed = false)
     {
         $class = get_called_class();
-        $dbname = self::getDBName(get_called_class());
+        $dbname = static::getTableName();
         $_query = 'SELECT * FROM `' . $dbname . '` WHERE ' . $query;
-        $statement = self::$db->prepare($_query);
+        $statement = static::$db->prepare($_query);
         if ($data === null) {
             $statement->execute();
-        } else {
+        } elseif (is_array($data)) {
             $statement->execute($data);
+        } else {
+            $statement->execute([$data]);
         }
         $fetched = $statement->fetchAll(\PDO::FETCH_ASSOC);
         if ($fetched) {
             $list = array();
-            foreach($fetched as $data) {
-                array_push($list, new $class($data));
+            foreach ($fetched as $data) {
+                if (!isset($data['deletedate']) || empty($data['deletedate']) || $withTrashed) {
+                    array_push($list, new $class($data));
+                }
             }
-            return $list;
+            return new DraftCollection($list);
         }
         return false;
     }
 
-    public static function findOne($query, $data = null)
+    public static function findOne($query, $data = null, $withTrashed = false)
     {
         $class = get_called_class();
-        $dbname = self::getDBName(get_called_class());
-        $_query = 'SELECT * FROM `' . $dbname . '` WHERE ' . $query . 'LIMIT 1';
-        $statement = self::$db->prepare($_query);
+        $dbname = static::getTableName();
+        $_query = 'SELECT * FROM `' . $dbname . '` WHERE ' . $query . ' LIMIT 1';
+
+        $statement = static::$db->prepare($_query);
+
         if ($data === null) {
             $statement->execute();
-        } else {
+        } elseif (is_array($data)) {
             $statement->execute($data);
+        } else {
+            $statement->execute([$data]);
         }
-        
+
         $fetched = $statement->fetch(\PDO::FETCH_ASSOC);
 
         if ($fetched) {
-            return new $class($fetched);
+            if (!isset($fetched['deletedate']) || empty($fetched['deletedate']) || $withTrashed) {
+                return new $class($fetched);
+            }
         }
         return false;
     }
