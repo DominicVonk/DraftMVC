@@ -31,8 +31,10 @@ class DraftRouter
                 break;
             }
         }
-        if (!$done) {
+        if (!$done && strtolower($_SERVER['REQUEST_METHOD']) !== 'cli') {
             header('Location: /404');
+        } elseif (!$done) {
+            echo 'Command not found';
         }
     }
     private static function routeDomain($domain, $routes)
@@ -60,7 +62,6 @@ class DraftRouter
     private static function routePath($path, $execute, $matches)
     {
         if (preg_match('/^' . str_replace('/', '\\/', $path) . '(\\?.*|)$/i', $_SERVER['REQUEST_URI'], $matches2)) {
-
             $names = explode('->', $execute);
             $className = $names[0];
             $function = $names[1];
@@ -102,6 +103,9 @@ class DraftRouter
             }
             if (method_exists($class, $function)) {
                 $return = call_user_func_array(array($class, $function), $matches);
+            }
+            if (strtolower($_SERVER['REQUEST_METHOD']) === 'cli') {
+                return true;
             }
             if ($return === null) {
                 if ($class->hasView()) {
