@@ -128,16 +128,15 @@ class DraftModel
         $statement = static::$db->prepare($_query);
         $statement->execute();
         $fetched = $statement->fetchAll(\PDO::FETCH_ASSOC);
+        $list = [];
         if ($fetched) {
-            $list = array();
             foreach ($fetched as $data) {
                 if (!isset($data['deletedate']) || empty($data['deletedate']) || $withTrashed) {
                     array_push($list, new $class($data));
                 }
             }
-            return new DraftCollection($list);
         }
-        return false;
+        return new DraftCollection($list);
     }
 
     public static function find($query, $data = null, $withTrashed = false)
@@ -154,8 +153,8 @@ class DraftModel
             $statement->execute([$data]);
         }
         $fetched = $statement->fetchAll(\PDO::FETCH_ASSOC);
+        $list = [];
         if ($fetched) {
-            $list = array();
             foreach ($fetched as $data) {
                 if (!isset($data['deletedate']) || empty($data['deletedate']) || $withTrashed) {
                     array_push($list, new $class($data));
@@ -163,7 +162,7 @@ class DraftModel
             }
             return new DraftCollection($list);
         }
-        return false;
+        return new DraftCollection($list);
     }
 
     public static function findOne($query, $data = null, $withTrashed = false)
