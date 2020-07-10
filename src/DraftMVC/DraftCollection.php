@@ -52,13 +52,25 @@ class DraftCollection implements \Iterator
     }
     public function sort($fn = SORT_ASC)
     {
-        $a = clone $this->array;
+        $a = $this->clonable($this->array);
         if (!is_callable($fn)) {
             sort($a, $fn);
             return $a;
         }
         usort($a, $fn);
         return new DraftCollection($a);
+    }
+
+    private function clonable($array)
+    {
+        $self = $this;
+        return array_map(function ($element) use ($self) {
+            return ((is_array($element))
+                ? $self->clonable($element)
+                : ((is_object($element))
+                    ? clone $element
+                    : $element));
+        }, $array);
     }
     public function pluck($v, $k = null)
     {
