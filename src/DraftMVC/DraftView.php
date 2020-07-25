@@ -1,21 +1,28 @@
 <?php
+
 namespace DraftMVC;
+
 if (!defined('DRAFT_VIEWS')) {
     define('DRAFT_VIEWS', __DIR__ . '/views');
 }
-class DraftView {
+class DraftView
+{
     private $file;
     private $html;
-    public function __construct($file) {
+    public function __construct($file)
+    {
         $this->file = $file;
     }
-    public function setViewFile($file) {
+    public function setViewFile($file)
+    {
         $this->file = $file;
     }
-    public function escape($string) {
+    public function escape($string)
+    {
         return htmlentities($string);
     }
-    public function show() {
+    public function show()
+    {
         ob_start();
         require(DRAFT_VIEWS . '/' . $this->file . '.php');
         $this->html = ob_get_contents();

@@ -1,14 +1,20 @@
 <?php
+
 namespace DraftMVC;
-class DraftController {
+
+class DraftController
+{
     protected $view = null;
     protected $layout = null;
-    public function escape($string) {
+    public function escape($string)
+    {
         return htmlentities($string);
     }
-    public function __construct() {
+    public function __construct()
+    {
     }
-    public function __destruct() {
+    public function __destruct()
+    {
         if ($this->hasView()) {
             $view = $this->view->show();
         }
@@ -19,25 +25,32 @@ class DraftController {
             echo $view;
         }
     }
-    public function redirect($path) {
+    public function redirect($path)
+    {
         header('Location: ' . $path);
     }
-    public function setView($view) {
+    public function setView($view)
+    {
         $this->view = $view;
     }
-    public function setLayout($layout) {
+    public function setLayout($layout)
+    {
         $this->layout = $layout;
     }
-    public function unsetView() {
+    public function unsetView()
+    {
         $this->view = null;
     }
-    public function unsetLayout() {
+    public function unsetLayout()
+    {
         $this->layout = null;
     }
-    public function hasView() {
+    public function hasView()
+    {
         return $this->view !== null;
     }
-    public function hasLayout() {
+    public function hasLayout()
+    {
         return $this->layout !== null;
     }
 }
